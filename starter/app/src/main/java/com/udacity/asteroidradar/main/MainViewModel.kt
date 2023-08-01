@@ -1,34 +1,33 @@
 package com.udacity.asteroidradar.main
 
+//import kotlinx.coroutines.CoroutineScope
+//import kotlinx.coroutines.Dispatchers
 import android.app.Application
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-//import kotlinx.coroutines.CoroutineScope
-//import kotlinx.coroutines.Dispatchers
 import androidx.lifecycle.viewModelScope
-import com.udacity.asteroidradar.Asteroid
-import com.udacity.asteroidradar.api.Api
-import com.udacity.asteroidradar.api.parseAsteroidsJsonResult
 import com.udacity.asteroidradar.database.getDatabase
+import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.domain.Picture
+import com.udacity.asteroidradar.repo.AsteroidsRepository
 import com.udacity.asteroidradar.repo.PictureRepository
 import kotlinx.coroutines.launch
-import org.json.JSONObject
-import retrofit2.HttpException
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
 enum class ApiStatus { LOADING, ERROR, DONE }
+
 /**
  * The [ViewModel] that is attached to the [MainFragment].
  */
-class MainViewModel (application:Application): AndroidViewModel(application) {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = getDatabase(application)
     private val pictureRepository = PictureRepository(database)
+    private val asteroidsRepository = AsteroidsRepository(database)
 
     /**
      * The internal MutableLiveData that stores the status of the most recent request
@@ -45,7 +44,7 @@ class MainViewModel (application:Application): AndroidViewModel(application) {
      * Internally, we use a MutableLiveData, because we will be updating the List of [Asteroid]
      * with new values
      */
-    private val _asteroids = MutableLiveData<List<Asteroid>>()
+    private val _asteroids = asteroidsRepository.asteroids
 
     /**
      * The external LiveData interface to the [Asteroid] is immutable, so only this class can modify
@@ -64,60 +63,58 @@ class MainViewModel (application:Application): AndroidViewModel(application) {
     init {
         Log.i("MainViewModel", "init called")
         viewModelScope.launch {
+            val formattedDate = SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().time)
+            asteroidsRepository.refresh(formattedDate, null)
             pictureRepository.refresh()
-        }
-        val calendar = Calendar.getInstance()
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-        val formattedDate = dateFormat.format(calendar.time)
-        Log.i("MainViewModel", "init called - " + formattedDate)
-        getAsteroids(formattedDate, formattedDate)
-    }
 
-
-
-    /**
-     * Gets filtered Mars real estate property information from the Mars API Retrofit service and
-     * updates the [MarsProperty] [List] and [MarsApiStatus] [LiveData]. The Retrofit service
-     * returns a coroutine Deferred, which we await to get the result of the transaction.
-     * @param filter the [MarsApiFilter] that is sent as part of the web server request
-     */
-    private fun getAsteroids(startDate: String, endDate: String) {
-        Log.i("MainViewModel", "getAsteroids called " + startDate + " " + endDate)
-        viewModelScope.launch {
-            Log.i("MainViewModel", "getAsteroids called - loading")
-            _status.value = ApiStatus.LOADING
-            try {
-                _asteroids.value = parseAsteroidsJsonResult(JSONObject(Api.retrofitServiceScalar.getAsteroids(startDate, endDate)))
-                Log.i("MainViewModel", "getAsteroids called - " + _asteroids.value.toString())
-                _status.value = ApiStatus.DONE
-            } catch (e: Exception) {
-                Log.i("MainViewModel", "getAsteroids called - " + e.toString())
-                val errorBody = (e as? HttpException)?.response()?.errorBody()?.string()
-                Log.i("MainViewModel", errorBody ?: "n/a")
-                _status.value = ApiStatus.ERROR
-                _asteroids.value = ArrayList()
-            }
         }
     }
 
-    /*private fun getPicture() {
-        Log.i("MainViewModel", "getPicture called")
-        viewModelScope.launch {
-            Log.i("MainViewModel", "getPicture called - loading")
-            _status.value = ApiStatus.LOADING
-            try {
-                _picture.value = Api.retrofitServiceMoshi.getImageOfTheDay()
-                Log.i("MainViewModel", "getPicture called - " + _picture.value.toString())
-                _status.value = ApiStatus.DONE
-            } catch (e: Exception) {
-                Log.i("MainViewModel", "getPicture called - " + e.toString())
-                val errorBody = (e as? HttpException)?.response()?.errorBody()?.string()
-                Log.i("MainViewModel", errorBody ?: "n/a")
-                _status.value = ApiStatus.ERROR
-                _picture.value = null
+
+    /*
+        /**
+         * Gets filtered Mars real estate property information from the Mars API Retrofit service and
+         * updates the [MarsProperty] [List] and [MarsApiStatus] [LiveData]. The Retrofit service
+         * returns a coroutine Deferred, which we await to get the result of the transaction.
+         * @param filter the [MarsApiFilter] that is sent as part of the web server request
+         */
+        private fun getAsteroids(startDate: String, endDate: String) {
+            Log.i("MainViewModel", "getAsteroids called " + startDate + " " + endDate)
+            viewModelScope.launch {
+                Log.i("MainViewModel", "getAsteroids called - loading")
+                _status.value = ApiStatus.LOADING
+                try {
+                    _asteroids.value = parseAsteroidsJsonResult(JSONObject(Api.retrofitServiceScalar.getAsteroids(startDate, endDate)))
+                    Log.i("MainViewModel", "getAsteroids called - " + _asteroids.value.toString())
+                    _status.value = ApiStatus.DONE
+                } catch (e: Exception) {
+                    Log.i("MainViewModel", "getAsteroids called - " + e.toString())
+                    val errorBody = (e as? HttpException)?.response()?.errorBody()?.string()
+                    Log.i("MainViewModel", errorBody ?: "n/a")
+                    _status.value = ApiStatus.ERROR
+                    _asteroids.value = ArrayList()
+                }
             }
         }
-    }*/
+
+        private fun getPicture() {
+            Log.i("MainViewModel", "getPicture called")
+            viewModelScope.launch {
+                Log.i("MainViewModel", "getPicture called - loading")
+                _status.value = ApiStatus.LOADING
+                try {
+                    _picture.value = Api.retrofitServiceMoshi.getImageOfTheDay()
+                    Log.i("MainViewModel", "getPicture called - " + _picture.value.toString())
+                    _status.value = ApiStatus.DONE
+                } catch (e: Exception) {
+                    Log.i("MainViewModel", "getPicture called - " + e.toString())
+                    val errorBody = (e as? HttpException)?.response()?.errorBody()?.string()
+                    Log.i("MainViewModel", errorBody ?: "n/a")
+                    _status.value = ApiStatus.ERROR
+                    _picture.value = null
+                }
+            }
+        }*/
 
     /**
      * Internally, we use a MutableLiveData to handle navigation to the selected [Asteroid]
@@ -152,6 +149,8 @@ class MainViewModel (application:Application): AndroidViewModel(application) {
      * @param endDate the end_date that is sent as part of the web server request
      */
     fun updateFilter(startDate: String, endDate: String) {
-        getAsteroids(startDate, endDate)
+        viewModelScope.launch {
+            asteroidsRepository.refresh(startDate, endDate)
+        }
     }
 }

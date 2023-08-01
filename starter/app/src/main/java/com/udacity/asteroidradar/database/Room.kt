@@ -11,18 +11,30 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 @Dao
+interface AsteroidsDao {
+    @Query("select * from DatabaseAsteroid ORDER BY closeApproachDate")
+    fun getAsteroids(): LiveData<List<DatabaseAsteroid>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(vararg asteroids: DatabaseAsteroid)
+}
+
+@Dao
 interface PictureDao {
     @Query("select * from DatabasePicture LIMIT 1")
     fun getPicture(): LiveData<DatabasePicture?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertAll(vararg pictures: DatabasePicture)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(picture: DatabasePicture)
 }
-@Database (entities = [DatabasePicture::class], version = 1, exportSchema = false)
-abstract class PicturesDatabase: RoomDatabase() {
+
+@Database(
+    entities = [DatabaseAsteroid::class, DatabasePicture::class],
+    version = 2,
+    exportSchema = false
+)
+abstract class PicturesDatabase : RoomDatabase() {
+    abstract val asteroidsDao: AsteroidsDao
     abstract val pictureDao: PictureDao
 }
 
@@ -31,9 +43,12 @@ private lateinit var INSTANCE: PicturesDatabase
 fun getDatabase(context: Context): PicturesDatabase {
     synchronized(PicturesDatabase::class.java) {
         if (!::INSTANCE.isInitialized) {
-            INSTANCE = Room.databaseBuilder(context.applicationContext,
+            INSTANCE = Room.databaseBuilder(
+                context.applicationContext,
+
                 PicturesDatabase::class.java,
-                "picture").build()
+                "picture"
+            ).fallbackToDestructiveMigration().build()
         }
     }
     return INSTANCE

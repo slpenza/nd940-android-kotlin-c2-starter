@@ -64,7 +64,7 @@ private val retrofitScalar = Retrofit.Builder()
 
 interface ApiService {
     @GET("neo/rest/v1/feed")
-    suspend fun getAsteroids(@Query("start_date") startDate: String, @Query("end_date") endDate: String): String
+    suspend fun getAsteroids(@Query("start_date") startDate: String, @Query("end_date") endDate: String?): String
     @SuppressWarnings("SpellCheckingInspection")
     @GET("planetary/apod")
     suspend fun getPicture(): NetworkPictureContainer
