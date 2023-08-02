@@ -21,4 +21,7 @@
     <string name="nasa_picture_of_day_content_description_format">NASA\'s picture of day: %s</string>
     <string name="default_asteroid_approach_date">2023-01-01</string>
     <string name="default_asteroid_name">Bob The Asteroid</string>
+    <string name="help_button">Help Button</string>
+    <string name="definition_of_au">Definition of Astrological Unit</string>
+    <string name="image_of_viewmodel_picture_title">NASA Image of The Day</string>
 </resources>

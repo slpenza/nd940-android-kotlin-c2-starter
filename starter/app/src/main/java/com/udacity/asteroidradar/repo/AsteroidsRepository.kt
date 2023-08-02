@@ -1,5 +1,6 @@
 package com.udacity.asteroidradar.repo
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.map
 import com.udacity.asteroidradar.api.Api
@@ -12,6 +13,7 @@ import com.udacity.asteroidradar.network.asDatabaseModel
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.Dispatchers
 import org.json.JSONObject
+import java.net.UnknownHostException
 
 class AsteroidsRepository (private val database: PicturesDatabase){
 
@@ -21,9 +23,13 @@ class AsteroidsRepository (private val database: PicturesDatabase){
 
     suspend fun refresh(startDate:String, endDate:String?) {
         withContext(Dispatchers.IO) {
-            val asteroids = parseAsteroidsJsonResult(JSONObject(Api.retrofitServiceScalar.getAsteroids(startDate, endDate)))
-            val asteroidsContainer = NetworkAsteroidsContainer(asteroids.toList())
-            database.asteroidsDao.insertAll(*asteroidsContainer.asDatabaseModel())
+            try {
+                val asteroids = parseAsteroidsJsonResult(JSONObject(Api.retrofitServiceScalar.getAsteroids(startDate, endDate)))
+                val asteroidsContainer = NetworkAsteroidsContainer(asteroids.toList())
+                database.asteroidsDao.insertAll(*asteroidsContainer.asDatabaseModel())
+            } catch (exception: UnknownHostException) {
+                Log.e("AsteroidsRepository", "Handle no network")
+            }
         }
     }
 }

@@ -18,7 +18,7 @@ class MainFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentMainBinding.inflate(LayoutInflater.from(container?.context), container, false)
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
 
         binding.viewModel = viewModel
 
@@ -29,8 +29,8 @@ class MainFragment : Fragment() {
         })
 
         /**
-         * Observe the [navigateToSelectedAsteroid] LiveData and Navigate when it isn't null
-         * After navigating, call [displayAsteroidDetailsComplete] so that the ViewModel is ready
+         * Observe the [navigateToDetails] LiveData and Navigate when it isn't null
+         * After navigating, call [displayDetailsComplete] so that the ViewModel is ready
          * for another navigation event.
          */
         viewModel.navigateToDetails.observe(viewLifecycleOwner, Observer {

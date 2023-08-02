@@ -36,6 +36,7 @@ fun List<DatabaseAsteroid>.asDomainModel(): List<Asteroid> {
 @Entity
 data class DatabasePicture constructor(
     @PrimaryKey
+    val date: Long,
     val url: String,
     val title: String,
     val mediaType: String

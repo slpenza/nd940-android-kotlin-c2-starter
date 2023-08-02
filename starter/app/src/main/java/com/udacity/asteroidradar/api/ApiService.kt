@@ -12,6 +12,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.converter.scalars.ScalarsConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.util.concurrent.TimeUnit
 
 /**
  * Build the Moshi object that Retrofit will be using, making sure to add the Kotlin adapter for
@@ -38,7 +39,11 @@ private val retrofitMoshi = Retrofit.Builder()
                 .addQueryParameter("api_key", BuildConfig.NASA_API_KEY)
                 .build()
             chain.proceed(chain.request().newBuilder().url(url).build())
-        }.build()
+        }
+        .connectTimeout(30, TimeUnit.SECONDS) // Set the connection timeout
+        .readTimeout(30, TimeUnit.SECONDS) // Set the read timeout
+        .writeTimeout(30, TimeUnit.SECONDS) // Set the write timeout
+        .build()
     )
     .build()
 
@@ -58,7 +63,11 @@ private val retrofitScalar = Retrofit.Builder()
                 .addQueryParameter("api_key", BuildConfig.NASA_API_KEY)
                 .build()
             chain.proceed(chain.request().newBuilder().url(url).build())
-        }.build()
+        }
+        .connectTimeout(30, TimeUnit.SECONDS) // Set the connection timeout
+        .readTimeout(30, TimeUnit.SECONDS) // Set the read timeout
+        .writeTimeout(30, TimeUnit.SECONDS) // Set the write timeout
+        .build()
     )
     .build()
 

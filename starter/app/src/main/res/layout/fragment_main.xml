@@ -31,7 +31,7 @@
                 android:layout_height="match_parent"
                 android:adjustViewBounds="true"
                 android:scaleType="centerCrop"
-                android:contentDescription="@{viewModel.picture.title}"
+                android:contentDescription="@string/image_of_viewmodel_picture_title"
                 app:srcCompat="@drawable/placeholder_picture_of_day"
                 app:imageUrl="@{viewModel.picture.url}"
                 tools:src="@drawable/placeholder_picture_of_day" />
@@ -46,7 +46,7 @@
                 android:textSize="20sp"
                 android:layout_gravity="bottom"
                 android:background="#55010613"
-                android:text="@string/image_of_the_day" />
+                android:text="@{viewModel.picture.title}" />
         </FrameLayout>
 
         <androidx.recyclerview.widget.RecyclerView

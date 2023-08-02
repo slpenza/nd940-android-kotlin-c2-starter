@@ -21,7 +21,7 @@ interface AsteroidsDao {
 
 @Dao
 interface PictureDao {
-    @Query("select * from DatabasePicture LIMIT 1")
+    @Query("SELECT * from DatabasePicture ORDER BY date LIMIT 1")
     fun getPicture(): LiveData<DatabasePicture?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -30,7 +30,7 @@ interface PictureDao {
 
 @Database(
     entities = [DatabaseAsteroid::class, DatabasePicture::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class PicturesDatabase : RoomDatabase() {

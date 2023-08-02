@@ -6,6 +6,7 @@ import com.udacity.asteroidradar.database.DatabaseAsteroid
 import com.udacity.asteroidradar.Asteroid
 import com.udacity.asteroidradar.database.DatabasePicture
 import com.udacity.asteroidradar.domain.Picture
+import java.util.Calendar
 
 /**
  * "Data transfer objects are responsible for parsing and representing values on the network while domain objects are the core data representation for our app."
@@ -151,6 +152,7 @@ fun NetworkPictureContainer.asDomainModel(): Picture {
 fun NetworkPictureContainer.asDatabaseModel(): DatabasePicture {
     Log.i("DataTransferObjects", title.toString())
     return DatabasePicture(
+        date = Calendar.getInstance().timeInMillis,
         title = title,
         mediaType = media_type,
         url = url
